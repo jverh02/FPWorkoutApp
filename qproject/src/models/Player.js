@@ -1,4 +1,5 @@
 import Gear from "src/models/Gear";
+import Friend from "src/models/Friend";
 
 export default class Player {
   friends = [];
@@ -7,6 +8,7 @@ export default class Player {
   chest = null
   legs = null
   boots = null;
+  uuid = Math.random() * 1e016;
   constructor(name, className) {
     this.name = name;
     this.className = className;
@@ -14,10 +16,12 @@ export default class Player {
     this.gold = 500;
     this.difficulty = "Easy";
     this.addFriend = function(user) {
-      this.friends.push(user);
+      this.friends.push(new Friend(user));
     }
     this.removeFriend = function(user) {
+      user.uuid = -1;
       this.friends.splice(this.friends.indexOf(user), 1);
+      console.log(user);
     }
     this.addExercise = function(exercise) {
       this.exercises.push(exercise);

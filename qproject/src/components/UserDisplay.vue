@@ -4,30 +4,31 @@
 import Player from "src/models/Player";
 import Exercise from "src/models/Exercise";
 import Gear from "src/models/Gear";
-import {ref, defineComponent} from "vue";
+import {ref, defineComponent, reactive} from "vue";
 import axios from 'axios';
-let testUser = new Player("Character McDefault", "Barbarian");
+let testUser = reactive( new Player("Character McDefault", "Barbarian"));
+let exerciseSearchList = ref([]);
 export default defineComponent({
   name: "UserDisplay",
   components: {},
+  emits: ['update'],
   methods: {
     getData: async function () {
 
-      let queryresults = document.getElementById('queryresults');
-      queryresults.innerHTML = ""; //empty queryresults
-
+      exerciseSearchList.value = []; //empty search list
       axios.get("https://wger.de/api/v2/exercisebaseinfo?limit=20&language=2")
         .then((response) => {
           let results = response.data.results;
           console.log(results);
           for(let result of results) {
-            console.log(result.exercises);
+            //console.log(result.exercises);
             for(let exercise of result.exercises) {
-              console.log(exercise.name);
-              queryresults.innerHTML += exercise.name + '<q-btn color="white" text-color="black"">Add To Plan</q-btn> ' + ' <q-separator color="grey" style="height: 1px"/>';
-
+              // queryresults.innerHTML += exercise.name + ' <q-btn color="white" text-color="black"">Add To Plan</q-btn> ' + ' <q-separator color="grey" style="height: 1px"/>';
+              exerciseSearchList.value.push(exercise.name);
             }
+
           }
+          console.log(exerciseSearchList);
         }).catch((error) => {
         console.error(error.message);
       });
@@ -41,6 +42,10 @@ export default defineComponent({
       testUser.removeExercise(exercise);
       testUser.reputation += exercise.repGain;
       testUser.gold += exercise.goldGain;
+  },
+    updateComponent() {
+      console.log("updating ", this);
+      this.$forceUpdate();
     }
   },
   setup() {
@@ -53,7 +58,7 @@ export default defineComponent({
     const currentTab = ref('home'); // hold the current tab: home, plan
     const showFriends = ref(false); // move this to own component later
     const showShop = ref(false);
-    return { testUser, currentTab, showFriends, showShop};
+    return { testUser, currentTab, showFriends, showShop, exerciseSearchList};
   },
   data: function () {
     return {
@@ -117,13 +122,21 @@ export default defineComponent({
         <div class="row">
           <div class="col">
             <div id="queryresults"></div>
+              <q-virtual-scroll :items ="exerciseSearchList" v-slot="{item}"> <!--has to be called {item}, thanks Quasar-->
+                <q-item dense>
+                  <q-item-section>
+                  <q-item-label>{{item}}</q-item-label>
+                    </q-item-section>
+
+                </q-item>
+              </q-virtual-scroll>
             <q-btn color="primary" label="Search Exercises" @click="getData()"></q-btn>
 
 
           </div>
           <div class="col">
             <div class="text-h6">Your Daily Plan</div>
-            <q-virtual-scroll :items="testUser.exercises" v-slot="{item}">
+            <q-virtual-scroll :items="testUser.exercises" v-slot="{item}" :key="testUser.exercises">
               <q-item dense>
                 <q-item-section>
                   <div class="text-h5">{{item.name}}</div>
@@ -149,14 +162,17 @@ export default defineComponent({
           <div class="text-h6">Friends</div>
           <q-separator color="white" />
           <div class="text-h6" v-if="(testUser.friends.length == 0)">No friends found. Why not add some?</div>
-          <q-virtual-scroll :items="testUser.friends" v-slot="{item}">
-
-            <q-item>
+          <q-virtual-scroll :items="testUser.friends" v-slot="{item}" @update="updateComponent()">
+            <q-item :key="item.uuid">
               <q-item-section>
 
-                <div class="text-h6">{{item.name}}</div>
-                <q-item-label>Class: {{item.className}}</q-item-label>
-                <q-item-label>Reputation: {{item.reputation}} | Gold: {{item.gold}}</q-item-label><br>
+                <div class="text-h6">{{item.info.name}}</div>
+                <q-item-label>Class: {{item.info.className}}</q-item-label>
+                <q-item-label>Reputation: {{item.info.reputation}} | Gold: {{item.info.gold}}</q-item-label><br>
+<!--                <q-btn color="negative" @click="() => {-->
+<!--                  testUser.removeFriend(item);-->
+<!--updateComponent()-->
+<!--                }">Remove Friend</q-btn>-->
                 <q-btn color="negative" @click="testUser.removeFriend(item)">Remove Friend</q-btn>
               </q-item-section>
 
@@ -173,6 +189,7 @@ export default defineComponent({
         <q-card-section>
           <q-item-label>The shop doesn't work yet, but this button does! Ain't that neat?</q-item-label>
           <q-item-label>Reputation: {{testUser.reputation}} | Gold: {{testUser.gold}}</q-item-label><br>
+
         </q-card-section>
       </q-card>
 
