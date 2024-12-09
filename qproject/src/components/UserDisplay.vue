@@ -54,7 +54,7 @@ export default defineComponent({
         <player-info class="info" :user="testUser"></player-info>
       </q-tab-panel>
       <q-tab-panel name="plan" class="bg-dark text-white plan">
-        <div class="text-h5" align="center">Workout Plan: {{testUser.name}} the {{testUser.className}}
+        <div class="text-h5" align="center" style="margin-bottom:20px">Workout Plan: {{testUser.name}} the {{testUser.className}}
           <q-select bg-color="white" align="center" dense style="max-width:200px" :options="['Barbarian', 'Monk']" v-model="testUser.className">
             <!--          <option value="Barbarian">Barbarian</option>-->
             <!--          <option value="Monk">Monk</option>-->
@@ -91,7 +91,7 @@ export default defineComponent({
 }
 .dude {
   position: relative;
-  top:45%;
+  top:22vh;
   left:15%;
 }
 .info {

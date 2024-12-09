@@ -33,8 +33,8 @@ defineProps({
 
 <template>
   <div class="fixed-bottom-right z-top">
-    <q-btn color="primary" label="Friends" @click="showFriends = true"></q-btn>
-    <q-btn color="primary" label="Shop" @click="showShop = true" align="right"></q-btn>
+    <q-btn color="primary" label="Friends" size="18px" @click="showFriends = true"></q-btn>
+    <q-btn color="primary" label="Shop" size="18px" @click="showShop = true" align="right"></q-btn>
   </div>
 
   <q-dialog v-model="showFriends" position="left">
